@@ -8,4 +8,4 @@ The stage is scaffolding, not the default artwork of every project. Replace scen
 
 Use modern stable React function components, strict TypeScript, modular Three.js, native CSS and fetch-first transport. No mandatory auth, database, queue or backend; preserve serverless portability. Authored source files must not exceed 200 lines. Preserve boundaries for reviewed promotion to Floks, Kloks, FrnlTS, KrnlTS and Skipo, never automatic promotion.
 
-Run `npm run check` plus relevant browser interaction/accessibility checks before calling a project verified. If dependency/network access prevents a build, record the exact limitation; never claim a full build passed.
+Run `npm ci` and `npm run check` plus relevant browser interaction/accessibility checks before calling a project verified. If dependency/network access prevents a build, record the exact limitation; never claim a full build passed.

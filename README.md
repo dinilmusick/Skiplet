@@ -22,12 +22,12 @@ Every authored source file must remain **at most 200 lines**. All visible UI/sce
 ## Start and validate
 
 ```bash
-npm install
+npm ci
 npm run dev
 npm run check
 ```
 
-`npm run check` validates file lengths, palette, configuration, TypeScript, and a production build. The first load needs WebGL for the 3D sculpture; on failure, the same title page remains available with a CSS-only illustration. Reduced-motion users receive a static 3D frame.
+`npm run check` validates file lengths, palette, configuration, TypeScript, and a production build. The committed npm lockfile makes installs deterministic on Node.js 22. The Vite dev server listens on port 3000; when an external hosted preview needs a custom hostname, configure Vite's allowed host for that environment rather than globally disabling host checks. The first load needs WebGL for the 3D sculpture; on failure, the same title page remains available with a CSS-only illustration. Reduced-motion users receive a static 3D frame.
 
 This starter uses modern browser-native APIs, with no mandatory network calls at runtime. Follow `AGENTS.md` for coding and art-direction boundaries. Reusable components/services may later be reviewed for promotion into Floks/Kloks/Skipo; nothing is promoted automatically.
 

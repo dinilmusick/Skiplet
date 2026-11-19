@@ -4,7 +4,7 @@
 }
 * { box-sizing: border-box; }
 html, body, #root { margin: 0; min-height: 100%; }
-body { min-width: 280px; background: var(--color-base, black); }
+body { min-width: 280px; background: var(--color-base, transparent); }
 .exhibition {
   position: relative;
   isolation: isolate;
