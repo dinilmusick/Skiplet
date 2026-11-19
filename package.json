@@ -1,7 +1,7 @@
 {
   "name": "skiplet-template",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,16 +9,19 @@
     "typecheck": "tsc --noEmit",
     "check:lines": "node scripts/check-lines.mjs",
     "check:palette": "node scripts/check-palette.mjs",
-    "check": "npm run check:lines && npm run check:palette && npm run typecheck && npm run build"
+    "check:config": "node scripts/check-config.mjs",
+    "check": "npm run check:lines && npm run check:palette && npm run check:config && npm run typecheck && npm run build"
   },
   "dependencies": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.187.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.4.1",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.187.0",
+    "@vitejs/plugin-react": "^4.4.1",
     "typescript": "^5.7.3",
     "vite": "^6.1.0"
   }

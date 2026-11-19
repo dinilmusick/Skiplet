@@ -1,11 +1,11 @@
 # Skiplet agent contract
 
-Skiplet is the minimal static-first template for Meditations (`MDT-*`) exhibition projects. Prioritize striking, original, emotionally resonant, fluid and accessible interfaces exploring ideas in philosophy, mathematics, music, art and science.
+Skiplet is the ready-to-run React/TypeScript/Three.js template for `MDT-*` Meditations exhibitions. Always create downstream meditation repositories **private**, using GitHub template generation and independently checking visibility.
 
-Before building an experience, ask the user to choose or delegate its concept/truth tags, emotion keywords, art-style tags, color scheme, exact palette and material/texture palette. Store all choices in meditations.config.json. No visual color outside the declared palette. Respect reduced-motion preferences.
+A new repository must immediately render a coherent title page and responsive procedural 3D stage. Set `meditations.config.json`'s ID, title, concept, truth, emotion and art tags, art style, explicit color scheme, and materials/textures. Never leave placeholder metadata in a finished meditation. All visible colors must be taken from the palette; shader and lighting colors are subject to the same constraint.
 
-Use modern stable React functional components, strict TypeScript, ECMAScript modules and modern CSS (custom properties, grid, container queries). Avoid legacy APIs and unnecessary dependencies. Fetch-first transport with Request/Response and explicit errors; keep serverless portability. No mandatory database, queue, auth or backend. No fabricated success.
+The stage is scaffolding, not the default artwork of every project. Replace scene objects with concept-specific experiences while preserving renderer lifecycle, canvas cleanup, WebGL-unavailable fallback, reduced-motion behavior, responsive layout and readable text. Keep 3D assets optional: procedural starter geometry works without bundled model files.
 
-Limit authored source files to 200 lines. Preserve clean boundaries for future adoption into Skipo: UI can be promoted to Floks, reusable services to Kloks, FrnlTS component semantics and KrnlTS service contracts must remain compatible. Promotion is explicit, not automatic. Prefer canonical reusable capabilities to copying implementations.
+Use modern stable React function components, strict TypeScript, modular Three.js, native CSS and fetch-first transport. No mandatory auth, database, queue or backend; preserve serverless portability. Authored source files must not exceed 200 lines. Preserve boundaries for reviewed promotion to Floks, Kloks, FrnlTS, KrnlTS and Skipo, never automatic promotion.
 
-Before completion run line validation, typecheck, build and relevant accessibility and interaction tests. Report any unverified result honestly.
+Run `npm run check` plus relevant browser interaction/accessibility checks before calling a project verified. If dependency/network access prevents a build, record the exact limitation; never claim a full build passed.
