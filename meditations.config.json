@@ -1,0 +1,16 @@
+{
+  "id": "MDT-Example",
+  "truthTags": ["emergence", "feedback"],
+  "emotionTags": ["wonder", "serenity"],
+  "artTags": ["minimal", "kinetic"],
+  "artStyle": "kinetic minimalism",
+  "colorScheme": "complementary",
+  "palette": {
+    "base": "#101820",
+    "highlight": "#F2AA4C",
+    "surface": "#101820",
+    "text": "#F2AA4C"
+  },
+  "materials": ["glass", "soft grain"],
+  "textures": ["translucent", "subtle noise"]
+}
