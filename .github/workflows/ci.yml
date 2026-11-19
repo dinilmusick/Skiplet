@@ -21,3 +21,5 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Validate and build
         run: npm run check
+      - name: Browser fallback smoke test
+        run: bash scripts/smoke-browser.sh
