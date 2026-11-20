@@ -1,34 +1,46 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import config from '../meditations.config.json';
 import { ChapterMarkdown } from './components/ChapterMarkdown';
-import { chapters } from './exposition';
+import { PerspectiveNavigation } from './components/PerspectiveNavigation';
+import { ViewNavigation } from './components/ViewNavigation';
+import { perspectives } from './exposition';
 import { ExhibitionCanvas } from './scene/ExhibitionCanvas';
 
-type PaletteStyle = CSSProperties & Record<`--color-${string}`, string>;
-const theme: PaletteStyle = {
+const theme = {
   '--color-base': config.palette.base,
   '--color-highlight': config.palette.highlight,
   '--color-surface': config.palette.surface,
   '--color-text': config.palette.text,
-};
-const clamp = (value: number) => Math.max(0, Math.min(chapters.length - 1, value));
-const fromUrl = () => {
-  const slug = new URLSearchParams(window.location.search).get('chapter');
-  return Math.max(0, chapters.findIndex(entry => entry.slug === slug));
-};
+} as CSSProperties;
+const clamp = (index: number, size: number) => Math.max(0, Math.min(size - 1, index));
+function fromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('perspective') ?? params.get('chapter');
+  const perspective = Math.max(0, perspectives.findIndex(entry => entry.slug === slug));
+  const viewSlug = params.get('view');
+  const view = Math.max(0, perspectives[perspective]?.views.findIndex(item => item.slug === viewSlug) ?? 0);
+  return { perspective, view };
+}
 
 export function App() {
   const [active, setActive] = useState(fromUrl);
   const [fallback, setFallback] = useState(false);
   const title = config.title.trim() || config.id.replace(/^MDT-/, '').replaceAll('-', ' ');
-  const page = chapters[active];
+  const perspective = perspectives[active.perspective];
+  const view = perspective?.views[active.view] ?? perspective?.views[0];
+  const viewCount = perspective?.views.length ?? 0;
 
-  function navigate(index: number, push = true) {
-    const target = chapters[clamp(index)];
-    if (!target) return;
-    setActive(clamp(index));
+  function navigate(perspectiveIndex: number, viewIndex = 0, push = true) {
+    const selected = perspectives[clamp(perspectiveIndex, perspectives.length)];
+    if (!selected) return;
+    const nextPerspective = clamp(perspectiveIndex, perspectives.length);
+    const nextView = clamp(viewIndex, selected.views.length);
+    setActive({ perspective: nextPerspective, view: nextView });
     const url = new URL(window.location.href);
-    url.searchParams.set('chapter', target.slug);
+    url.searchParams.delete('chapter');
+    url.searchParams.set('perspective', selected.slug);
+    if (selected.views[nextView]) url.searchParams.set('view', selected.views[nextView].slug);
+    else url.searchParams.delete('view');
     if (push) window.history.pushState(null, '', url);
   }
 
@@ -36,9 +48,14 @@ export function App() {
   useEffect(() => {
     const onPop = () => setActive(fromUrl());
     const onKey = (event: KeyboardEvent) => {
-      if (event.altKey || event.ctrlKey || event.metaKey || event.target instanceof HTMLInputElement) return;
-      if (event.key === 'ArrowRight') { navigate(active + 1); event.preventDefault(); }
-      if (event.key === 'ArrowLeft') { navigate(active - 1); event.preventDefault(); }
+      if (event.altKey || event.ctrlKey || event.metaKey ||
+          event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+      if (event.key === 'ArrowRight') navigate(active.perspective + 1);
+      else if (event.key === 'ArrowLeft') navigate(active.perspective - 1);
+      else if (event.key === 'ArrowDown') navigate(active.perspective, active.view + 1);
+      else if (event.key === 'ArrowUp') navigate(active.perspective, active.view - 1);
+      else return;
+      event.preventDefault();
     };
     window.addEventListener('popstate', onPop);
     window.addEventListener('keydown', onKey);
@@ -49,7 +66,9 @@ export function App() {
     <main className="exhibition" style={theme}>
       <div className="exhibition-visual" aria-hidden="true">
         {fallback ? <div className="sculpture-fallback" /> : (
-          <ExhibitionCanvas onUnavailable={() => setFallback(true)} />
+          <ExhibitionCanvas onUnavailable={() => setFallback(true)}
+            perspectiveCount={perspectives.length} perspectiveIndex={active.perspective}
+            viewIndex={active.view} />
         )}
       </div>
       <div className="exhibition-vignette" aria-hidden="true" />
@@ -57,37 +76,36 @@ export function App() {
         <span className="exhibition-brand">MEDITATIONS</span>
         <span className="exhibition-index">{title} / {config.id}</span>
       </header>
-      {page ? (
-        <article className="exhibition-chapter" key={page.slug} aria-label={`Chapter ${page.number}: ${page.title}`}>
-          <p className="exhibition-kicker">CHAPTER {String(page.number).padStart(2, '0')} / {chapters.length}</p>
-          <ChapterMarkdown markdown={page.markdown} onChapterLink={file => {
-            const next = chapters.findIndex(chapter => chapter.file === file);
-            if (next < 0) return false;
-            navigate(next);
+      {perspective && view ? (
+        <section className="exhibition-chapter"
+          aria-label={'Perspective ' + perspective.number + ': ' + perspective.title +
+            ', view ' + view.ordinal + ': ' + view.title}>
+          <p className="exhibition-kicker">
+            PERSPECTIVE {String(perspective.number).padStart(2, '0')} / {perspectives.length}
+            {' · '}VIEW {view.ordinal} / {viewCount}
+          </p>
+          <ChapterMarkdown markdown={view.markdown} onChapterLink={file => {
+            const index = perspectives.findIndex(item => item.file === file);
+            if (index < 0) return false;
+            navigate(index);
             return true;
           }} />
-        </article>
+        </section>
       ) : (
         <section className="exhibition-story" aria-labelledby="exhibition-title">
           <p className="exhibition-kicker">AN INTERACTIVE EXHIBITION</p>
           <h1 id="exhibition-title">{title}</h1>
-          <p className="exhibition-concept">Add a numbered Markdown chapter in exposition/, then run skiplet generate pages.</p>
+          <p className="exhibition-concept">Add a numbered Markdown chapter in exposition/, then run skiplet generate perspectives.</p>
         </section>
       )}
-      <nav className="chapter-navigation" aria-label="Exhibition chapters">
-        <button type="button" aria-label="Previous chapter" disabled={active <= 0} onClick={() => navigate(active - 1)}>←</button>
-        <div className="chapter-navigation-tabs" role="tablist" aria-label="Choose a chapter">
-          {chapters.map((chapter, index) => (
-            <button type="button" role="tab" aria-selected={index === active} key={chapter.slug}
-              className={index === active ? 'is-active' : ''} onClick={() => navigate(index)}>
-              {String(chapter.number).padStart(2, '0')} <span>{chapter.title}</span>
-            </button>
-          ))}
-        </div>
-        <button type="button" aria-label="Next chapter" disabled={active >= chapters.length - 1} onClick={() => navigate(active + 1)}>→</button>
-      </nav>
+      <div className="exhibition-controls">
+        <ViewNavigation views={perspective?.views ?? []} active={active.view}
+          onSelect={index => navigate(active.perspective, index)} />
+        <PerspectiveNavigation perspectives={perspectives} active={active.perspective}
+          onSelect={index => navigate(index)} />
+      </div>
       <footer className="exhibition-footer">
-        <span>EXPOSITION → EXPERIENCE</span>
+        <span>EXPOSITION → PERSPECTIVES → VIEWS</span>
         <span>{fallback ? '2D fallback' : 'PROCEDURAL 3D STUDY'}</span>
       </footer>
     </main>

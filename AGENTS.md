@@ -1,15 +1,16 @@
 # Skiplet agent contract
 
-Skiplet is the ready-to-run React/TypeScript/Three.js template for `MDT-*` Meditations exhibitions. Always create downstream meditation repositories **private**, using GitHub template generation and independently checking visibility.
+Skiplet is the ready-to-use React/TypeScript/Three.js template for Meditations. New `MDT-*` repositories must be generated private and independently verified private.
 
-A new repository must immediately render a coherent title page and responsive procedural 3D stage. Set `meditations.config.json`'s ID, title, concept, truth, emotion and art tags, art style, explicit color scheme, and materials/textures. Never leave placeholder metadata in a finished meditation. All visible colors must be taken from the palette; shader and lighting colors are subject to the same constraint.
+## Architecture
 
-The stage is scaffolding, not the default artwork of every project. Replace scene objects with concept-specific experiences while preserving renderer lifecycle, canvas cleanup, WebGL-unavailable fallback, reduced-motion behavior, responsive layout and readable text. Keep 3D assets optional: procedural starter geometry works without bundled model files.
+1. **Scene**: `src/scene/` is only the small shared stage assembly, renderer lifecycle and orbit/camera coordination. The app has one main scene.
+2. **Components**: all singular reusable 2D and 3D components belong in `src/components/` (3D primitives specifically in `src/components/3d/`). Do not put component geometry or UI widgets inside the scene shell.
+3. **Perspectives**: each numbered `exposition/NN-slug.md` chapter creates one perspective on the orbital carousel. The opening heading must match `# NN — Title`. Never call chapter stations "pages" in runtime UI.
+4. **Views**: each H2 section (`## Title`) within the chapter creates one view of its perspective. Introductory prose before the first H2 is an Overview view; no H2s means a single Overview.
+5. **Motion**: perspective changes rotate the levitating exhibit assembly anticlockwise about the sphere's Z axis; the camera stays stationary in presentation space. View changes pan/zoom camera targets within the selected perspective only.
+6. **Generation**: run `skiplet generate perspectives` (older alias: `skiplet generate pages`) when chapter or section structures change. Never hand-edit `src/generated/perspectives.json` or hardcode counts/labels.
 
-Use modern stable React function components, strict TypeScript, modular Three.js, native CSS and fetch-first transport. No mandatory auth, database, queue or backend; preserve serverless portability. Authored source files must not exceed 200 lines. Preserve boundaries for reviewed promotion to Floks, Kloks, FrnlTS, KrnlTS and Skipo, never automatic promotion.
+All artwork and UI colors must come from meditations.config.json palette. Preserve WebGL-unavailable 2D fallback, reduced-motion support, keyboard navigation, semantic UI, deep links, responsive layout and Three.js resource cleanup. Keep each source file to at most 200 lines. The default procedural geometry is replaceable starter artwork, not a mandatory aesthetic. No compulsory authentication, database, backend or downloaded asset.
 
-Run `npm ci` and `npm run check` plus relevant browser interaction/accessibility checks before calling a project verified. If dependency/network access prevents a build, record the exact limitation; never claim a full build passed.
-
-## Canonical exposition rule
-
-Treat `exposition/` as the **only** authored chapter source. Number chapter files `01-slug.md`, `02-slug.md`, and so on, with a matching first heading `# 01 — Chapter Title`. Keep numbers contiguous; reserve `README.md` for an optional index. Each chapter is exactly one carousel page. Never manually change generated page lists or hardcode the number of pages in the UI: run `skiplet generate pages` to update `src/generated/pages.json` after adding, removing or renaming Markdown chapters. CI must run `skiplet generate pages --check` and the generator tests. Treat chapter-specific visualizations as optional attachments, not additional pages. Preserve original Markdown files and any paired exposition/mathematics within them.
+Run `npm ci` and `npm run check` with browser interaction tests before reporting a verified release. Never claim tests passed when CI failed. Promotion to Floks/Kloks/Skipo is explicit, reviewed and independently verified, never automatic.

@@ -13,8 +13,9 @@
     "check": "npm run check:lines && npm run check:palette && npm run check:config && npm run check:pages && npm run test && npm run typecheck && npm run build",
     "generate": "node scripts/skiplet.mjs generate",
     "generate:pages": "node scripts/skiplet.mjs generate pages",
+    "generate:perspectives": "node scripts/skiplet.mjs generate perspectives",
     "skiplet": "node scripts/skiplet.mjs",
-    "check:pages": "node scripts/skiplet.mjs generate pages --check",
+    "check:pages": "node scripts/skiplet.mjs generate perspectives --check",
     "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
