@@ -24,13 +24,21 @@ trap 'kill "$SERVER_PID" 2>/dev/null || true; rm -f "$DOM_FILE"' EXIT
   --disable-software-rasterizer --disable-dev-shm-usage \
   --virtual-time-budget=4000 --dump-dom "$URL" > "$DOM_FILE" 2>/tmp/skiplet-chrome.log
 
-if ! grep -Fq '<h1 id="exhibition-title">' "$DOM_FILE"; then
-  echo "React app failed to mount its config-driven title" >&2
+if ! grep -Fq 'aria-label="Chapter 1: Opening"' "$DOM_FILE"; then
+  echo "React chapter carousel failed to render generated exposition page" >&2
   cat /tmp/skiplet-chrome.log >&2
+  exit 1
+fi
+if ! grep -Fq 'role="tablist"' "$DOM_FILE"; then
+  echo "Chapter navigation tabs were not rendered" >&2
+  exit 1
+fi
+if ! grep -Fq '01 — Opening' "$DOM_FILE"; then
+  echo "Chapter Markdown heading did not render" >&2
   exit 1
 fi
 if ! grep -Fq '2D fallback' "$DOM_FILE"; then
   echo "WebGL-disabled browser did not show the accessible fallback" >&2
   exit 1
 fi
-echo "Browser smoke: React title page and WebGL fallback verified"
+echo "Browser smoke: generated Markdown page, carousel controls and WebGL fallback verified"
