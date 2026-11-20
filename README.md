@@ -45,11 +45,12 @@ Markdown chapters use the first line as the title, e.g. `# 01 — Opening`. Ever
 ```bash
 npm ci
 npm run generate:perspectives
-npm run check
+npm run check:constraints  # source/layout/manifest invariants, no dependencies required
+npm run check              # constraints + tests + TypeScript + production build
 npm run dev
 ```
 
-The canonical CLI command is `skiplet generate perspectives`. The older `skiplet generate pages` remains a compatible alias and writes the **same** `src/generated/perspectives.json` registry. Run generation after adding/removing/renaming chapters or changing their section structure. Editing paragraph text alone does not require regeneration. `npm run check:pages` verifies the manifest is current.
+To enforce all source constraints via the CLI use `skiplet check constraints` (CI-friendly, nonzero exit on violations); use `skiplet check all` to run constraints, tests, typecheck and build.\n\nThe canonical CLI command is `skiplet generate perspectives`. The older `skiplet generate pages` remains a compatible alias and writes the **same** `src/generated/perspectives.json` registry. Run generation after adding/removing/renaming chapters or changing their section structure. Editing paragraph text alone does not require regeneration. `npm run check:pages` verifies the manifest is current.
 
 Navigation: left/right arrow keys and perspective tabs change perspectives; up/down arrows and view tabs navigate inside a perspective. Deep links use `?perspective=01-opening&view=your-exposition`, and old `?chapter=01-opening` URLs remain readable. Browser history navigation is supported.
 
