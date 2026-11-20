@@ -49,7 +49,7 @@ export function Carousel3D({ elements, visuals, activeIndex, onActivate, onUnava
         -((event.clientY - bounds.top) / bounds.height * 2 - 1));
       raycaster.setFromCamera(pointer, world.camera);
       const intersection = raycaster.intersectObjects(world.hitTargets, true)[0];
-      let current = intersection?.object;
+      let current: THREE.Object3D | undefined = intersection?.object;
       while (current && !Number.isInteger(current.userData.carouselIndex)) current = current.parent ?? undefined;
       const index: number | undefined = current?.userData.carouselIndex;
       if (index !== undefined && elements[index]) callbacks.current.onActivate(elements[index]);
