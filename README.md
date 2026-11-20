@@ -1,64 +1,58 @@
 # Skiplet — Meditations Template
 
-A ready-to-edit **React + TypeScript + Vite + Three.js** starting point for spatial, interactive exhibitions. New meditation repositories are named `MDT-<Concept>` and must be private.
+A React + TypeScript + Vite + Three.js starter for spatial exhibitions. New MDT-* repositories must always be private.
 
-## What a new repository displays
+## Canonical exhibition standard
 
-Open the app and see the first numbered Markdown chapter as a page in the responsive exhibition carousel, over an illuminated **procedural 3D sculpture**. No model files, textures, proprietary assets, authentication, backend or database are needed to boot. The sculpture is **starter art**, not an exhibit thesis; replace it with the meditation's own interaction and art direction.
+**Scene → Perspectives → Views**, with reusable objects under src/components.
 
-The displayed title, concept, document title, and palette come from `meditations.config.json`. Set `id`, `title` and `concept` when creating a new project. Set truth, emotion and art tags, explicit color scheme, materials and textures before producing exhibition-specific art.
+- **Scene**: one main 3D stage and React shell (src/scene and src/App.tsx). Scene files coordinate rendering, orbit rotation, camera targets, cleanup, and fallback, without defining the small reusable objects themselves.
+- **Components**: all reusable 2D elements live in src/components; reusable Three.js objects live in src/components/3d (sphere, exhibit sculpture and lighting). They can be replaced by concept-specific exhibits.
+- **Perspective**: one numbered Markdown chapter in exposition/; each perspective is a station on the rotating sphere, not a separate React route.
+- **View**: each level-two Markdown section (## Heading) defines one camera view inside its perspective. An introductory paragraph becomes an Overview view. With no sections, the entire chapter becomes one Overview view.
 
-## Architecture
+The orbit rotates anticlockwise around the Z axis for next-perspective navigation, carrying levitating exhibits. The camera stays at its presentation station while the sphere turns, and the exhibits stay upright. Changing *views* pans and gently zooms the camera without changing the sphere's rotation.
 
-- `src/main.tsx` — React root only.
-- `src/App.tsx` — semantic, accessible chapter carousel, deep links and non-WebGL fallback.
-- `src/scene/ExhibitionCanvas.tsx` — Three.js renderer lifecycle, resize, cleanup, WebGL failure and reduced-motion handling.
-- `src/scene/createStarterScene.ts` — replaceable procedural scene with palette-based lighting and geometry.
-- `src/style.css` — responsive, palette-derived exhibition layout.
-- `meditations.config.json` — single canonical title/art-direction/palette source.
+## File organization
 
-Every authored source file must remain **at most 200 lines**. All visible UI/scene colors must be derived from the configured palette. The React scene can be replaced or extended without modifying the React root.
+```text
+exposition/
+  01-opening.md
+  02-context.md
+  README.md
+src/
+  components/
+    ChapterMarkdown.tsx
+    PerspectiveNavigation.tsx
+    ViewNavigation.tsx
+    3d/
+      OrbitSphere.ts
+      ExhibitSculpture.ts
+      SceneLighting.ts
+  scene/
+    ExhibitionCanvas.tsx
+    createExhibitionScene.ts
+    orbitMath.ts
+  exposition.ts
+  generated/perspectives.json
+  App.tsx
+```
 
-## Start and validate
+Markdown chapters use the first line as the title, e.g. `# 01 — Opening`. Every `## Section title` becomes a separate view. The optional exposition README is an index only. Numbers must be unique and consecutive. Do not maintain a manual carousel page list.
+
+## Generation and verification
 
 ```bash
 npm ci
-npm run dev
+npm run generate:perspectives
 npm run check
+npm run dev
 ```
 
-`npm run check` validates file lengths, palette, configuration, TypeScript, and a production build. The committed npm lockfile makes installs deterministic on Node.js 22. The Vite dev server listens on port 3000; when an external hosted preview needs a custom hostname, configure Vite's allowed host for that environment rather than globally disabling host checks. The first load needs WebGL for the 3D sculpture; on failure, the same title page remains available with a CSS-only illustration. Reduced-motion users receive a static 3D frame.
+The canonical CLI command is `skiplet generate perspectives`. The older `skiplet generate pages` remains a compatible alias and writes the **same** `src/generated/perspectives.json` registry. Run generation after adding/removing/renaming chapters or changing their section structure. Editing paragraph text alone does not require regeneration. `npm run check:pages` verifies the manifest is current.
 
-This starter uses modern browser-native APIs, with no mandatory network calls at runtime. Follow `AGENTS.md` for coding and art-direction boundaries. Reusable components/services may later be reviewed for promotion into Floks/Kloks/Skipo; nothing is promoted automatically.
+Navigation: left/right arrow keys and perspective tabs change perspectives; up/down arrows and view tabs navigate inside a perspective. Deep links use `?perspective=01-opening&view=your-exposition`, and old `?chapter=01-opening` URLs remain readable. Browser history navigation is supported.
 
-**Template safety:** Configure GitHub's template setting on `Skiplet`. When generating `MDT-*` projects, ensure **private** repository visibility. Do not copy exposition, assets, or project-specific geometry from another meditation.
+The starter scene uses procedural geometry so model assets are optional. The rendering lifecycle supports reduced motion, WebGL unavailability, resizing and resource cleanup. All colors are derived from meditations.config.json. Each authored source file is limited to 200 lines. Run `npm run check` for tests, typechecking, palette and config validation and production build; CI also runs the browser fallback smoke test. No required backend, authentication, or database.
 
-## Canonical exposition and page generation
-
-There is exactly one canonical `exposition/` directory. Each numbered `NN-slug.md` document becomes **one** main-UI carousel page; `exposition/README.md` is an optional index, not a page. Do not maintain a second manual page registry.
-
-Every numbered file must start with its chapter number and title:
-
-```md
-# 01 — Opening
-
-Your exposition goes here.
-```
-
-Chapter numbers must start at 01, be unique and consecutive. Names must begin with a two-or-more-digit prefix and a kebab-case slug. Titles come from the first Markdown heading, never from hardcoded React labels. Chapter pages appear in numerical order regardless of filesystem order.
-
-From the repository root, run either:
-
-```bash
-npm run generate:pages
-# Equivalent with the CLI installed or linked:
-skiplet generate pages
-# Validate that the committed registry is current:
-npm run check:pages
-```
-
-The generator rewrites **only** `src/generated/pages.json`. The React app reads that index and imports chapter Markdown via Vite's raw file glob. Add, rename or delete chapter files, then rerun generation: the carousel gains, reorders or removes pages deterministically. The build check fails if chapter files and the generated index disagree. Changing Markdown body text alone does not require regeneration, because Vite imports the source content.
-
-Chapter navigation supports previous/next, chapter tabs, keyboard arrows, Markdown links to other chapters, and deep links via `?chapter=NN-slug`. Without Markdown chapters, the app shows an accessible empty state rather than inventing pages. Chapter-specific 3D artwork is optional and may be layered on the stage separately; it **never** controls the page count.
-
-The built-in lightweight Markdown display supports headings, paragraphs, basic emphasis and links, lists, blockquotes and fenced code. It treats raw HTML as text; advanced extensions such as mathematical typesetting are not part of the starter renderer. The generator adds no runtime dependencies.
+See AGENTS.md for constraints and reusable-asset promotion rules.

@@ -1,0 +1,12 @@
+.exhibition-controls { display: flex; flex-direction: column; gap: 0.5rem; }
+.view-navigation { display: flex; align-items: center; gap: 0.7rem; padding: 0.2rem clamp(1rem, 4vw, 3rem); }
+.view-navigation-label { flex: 0 0 auto; color: var(--color-highlight); font-size: 0.65rem; letter-spacing: 0.15em; }
+.view-navigation-tabs { display: flex; flex-wrap: nowrap; gap: 0.5rem; overflow-x: auto; flex: 1; padding: 0.35rem; }
+.view-navigation-tabs button { flex: 0 0 auto; background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-highlight); border-radius: 1rem; padding: 0.4rem 0.75rem; cursor: pointer; }
+.view-navigation-tabs button.is-active { background: var(--color-highlight); color: var(--color-base); font-weight: 700; }
+.view-navigation-tabs button:focus-visible { outline: 2px solid var(--color-highlight); outline-offset: 2px; }
+@media (max-width: 720px) {
+  .view-navigation { flex-wrap: wrap; }
+  .view-navigation-label { flex-basis: 100%; }
+  .exhibition-chapter { max-height: 54dvh; }
+}
