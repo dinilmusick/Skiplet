@@ -9,3 +9,7 @@ The stage is scaffolding, not the default artwork of every project. Replace scen
 Use modern stable React function components, strict TypeScript, modular Three.js, native CSS and fetch-first transport. No mandatory auth, database, queue or backend; preserve serverless portability. Authored source files must not exceed 200 lines. Preserve boundaries for reviewed promotion to Floks, Kloks, FrnlTS, KrnlTS and Skipo, never automatic promotion.
 
 Run `npm ci` and `npm run check` plus relevant browser interaction/accessibility checks before calling a project verified. If dependency/network access prevents a build, record the exact limitation; never claim a full build passed.
+
+## Canonical exposition rule
+
+Treat `exposition/` as the **only** authored chapter source. Number chapter files `01-slug.md`, `02-slug.md`, and so on, with a matching first heading `# 01 — Chapter Title`. Keep numbers contiguous; reserve `README.md` for an optional index. Each chapter is exactly one carousel page. Never manually change generated page lists or hardcode the number of pages in the UI: run `skiplet generate pages` to update `src/generated/pages.json` after adding, removing or renaming Markdown chapters. CI must run `skiplet generate pages --check` and the generator tests. Treat chapter-specific visualizations as optional attachments, not additional pages. Preserve original Markdown files and any paired exposition/mathematics within them.

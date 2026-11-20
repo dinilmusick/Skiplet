@@ -80,3 +80,39 @@ body { min-width: 280px; background: var(--color-base, transparent); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+.exhibition-chapter {
+  width: min(48rem, calc(100% - 2rem));
+  max-height: min(65dvh, 48rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 2rem auto 1rem;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background: color-mix(in srgb, var(--color-base) 88%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--color-text) 20%, transparent);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(18px);
+}
+.chapter-markdown h1 { font-size: clamp(2rem, 5vw, 4rem); line-height: 1.12; letter-spacing: -0.04em; margin: 0 0 1.4rem; }
+.chapter-markdown h2 { font-size: clamp(1.3rem, 3vw, 2rem); margin: 2rem 0 1rem; }
+.chapter-markdown h3, .chapter-markdown h4 { font-size: 1.15rem; margin: 1.5rem 0 0.8rem; }
+.chapter-markdown p, .chapter-markdown li { font-size: clamp(1rem, 1.4vw, 1.15rem); line-height: 1.8; }
+.chapter-markdown a { color: var(--color-highlight); text-underline-offset: 0.2em; }
+.chapter-markdown blockquote { margin: 1.4rem 0; padding: 0.25rem 1.25rem; border-left: 2px solid var(--color-highlight); }
+.chapter-markdown code, .chapter-markdown pre { font-family: ui-monospace, SFMono-Regular, monospace; }
+.chapter-markdown pre { overflow-x: auto; padding: 1.25rem; border-radius: 0.6rem; background: var(--color-surface); }
+.chapter-markdown hr { border: 0; border-top: 1px solid var(--color-highlight); opacity: 0.4; margin: 2rem 0; }
+.chapter-navigation { display: flex; align-items: center; gap: 1rem; padding: 0 clamp(1rem, 4vw, 3rem) 1rem; }
+.chapter-navigation > button { flex: 0 0 3rem; height: 3rem; border-radius: 50%; }
+.chapter-navigation button { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-highlight); cursor: pointer; }
+.chapter-navigation button:focus-visible { outline: 2px solid var(--color-highlight); outline-offset: 3px; }
+.chapter-navigation button:disabled { opacity: 0.3; cursor: not-allowed; }
+.chapter-navigation-tabs { display: flex; align-items: center; justify-content: center; gap: 0.5rem; overflow-x: auto; scrollbar-width: thin; flex: 1; padding: 0.4rem; }
+.chapter-navigation-tabs button { flex: 0 0 auto; border-radius: 2rem; padding: 0.6rem 0.95rem; white-space: nowrap; font-size: 0.8rem; }
+.chapter-navigation-tabs button.is-active { background: var(--color-highlight); color: var(--color-base); font-weight: 700; }
+@media (max-width: 720px) {
+  .exhibition-chapter { max-height: 62dvh; margin-top: 1rem; }
+  .chapter-navigation-tabs button span { display: none; }
+  .chapter-navigation { gap: 0.5rem; }
+  .chapter-navigation > button { flex-basis: 2.5rem; height: 2.5rem; }
+}
