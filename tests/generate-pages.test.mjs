@@ -7,86 +7,55 @@ import { extractViews, generatePages } from '../scripts/generate-pages.mjs';
 
 function fixture(run) {
   const root = mkdtempSync(join(tmpdir(), 'skiplet-perspectives-'));
-  mkdirSync(join(root, 'exposition'));
+  mkdirSync(join(root, 'meditation'));
   try { return run(root); } finally { rmSync(root, { recursive: true, force: true }); }
 }
 function chapter(root, name, firstLine, body = 'Body of the chapter.') {
-  writeFileSync(join(root, 'exposition', name), firstLine + '\n\n' + body + '\n');
+  writeFileSync(join(root, 'meditation', name), firstLine + '\n\n' + body + '\n');
 }
-
-test('generates perspectives in stable numeric order', () => fixture(root => {
+test('generates numbered perspective modules and view entrypoints', () => fixture(root => {
   chapter(root, '02-second-part.md', '# 02 — Second Part');
-  chapter(root, '01-first-question.md', '# 01 — First Question');
-  writeFileSync(join(root, 'exposition', 'README.md'), '# Book index\n');
-  const entries = generatePages(root);
-  assert.deepEqual(entries.map(x => x.title), ['First Question', 'Second Part']);
-  assert.equal(entries[0].views[0].title, 'Overview');
-  assert.deepEqual(generatePages(root, true), entries);
-  const before = readFileSync(join(root, 'src/generated/perspectives.json'), 'utf8');
+  chapter(root, '01-first-question.md', '# 01 — First Question', '## First view\nText.');
+  const items = generatePages(root);
+  assert.deepEqual(items.map(x => x.slug), ['01-first-question', '02-second-part']);
+  assert.match(readFileSync(join(root, 'src/perspectives/01-first-question/Perspective.tsx'), 'utf8'), /PerspectiveStage/);
+  assert.match(readFileSync(join(root, 'src/perspectives/01-first-question/views/first-view.tsx'), 'utf8'), /MarkdownView/);
+  assert.deepEqual(generatePages(root, true), items);
+}));
+test('view generation does not overwrite authored implementation', () => fixture(root => {
+  chapter(root, '01-one.md', '# 01 — One', '## My View\nBody');
   generatePages(root);
-  assert.equal(readFileSync(join(root, 'src/generated/perspectives.json'), 'utf8'), before);
-}));
-
-test('H2 sections become views; preamble becomes Overview', () => fixture(root => {
-  chapter(root, '01-first.md', '# 01 — First',
-    'An introduction.\n\n## The Question\nText.\n\n## Mathematical explanation\nMath.');
-  const [entry] = generatePages(root);
-  assert.deepEqual(entry.views.map(x => x.slug), ['overview', 'the-question', 'mathematical-explanation']);
-}));
-
-test('chapters without an introduction start at their first section', () => fixture(root => {
-  chapter(root, '01-one.md', '# 01 — One', '## First\nBody.\n\n## Second\nBody.');
-  assert.deepEqual(generatePages(root)[0].views.map(x => x.title), ['First', 'Second']);
-}));
-
-test('headings inside fenced code are not counted as views', () => {
-  const code = ['# 01 — One', '', '## Real', '', '~~~md', '## Fake', '~~~', '', '## Last'].join('\n');
-  assert.deepEqual(extractViews(code).map(x => x.title), ['Real', 'Last']);
-});
-
-test('repeated view headings have distinct stable slugs', () => fixture(root => {
-  chapter(root, '01-one.md', '# 01 — One', '## Example\nA.\n## Example\nB.');
-  assert.deepEqual(generatePages(root)[0].views.map(x => x.slug), ['example', 'example-2']);
-}));
-
-test('perspective or section changes invalidate the manifest', () => fixture(root => {
-  chapter(root, '01-one.md', '# 01 — One');
+  const view = join(root, 'src/perspectives/01-one/views/my-view.tsx');
+  writeFileSync(view, 'export default function Art() { return null; }\n');
   generatePages(root);
-  chapter(root, '02-two.md', '# 02 — Two', '## First\nA.');
-  assert.throws(() => generatePages(root, true), /out of date/);
-  generatePages(root);
-  assert.equal(generatePages(root, true).length, 2);
-  chapter(root, '02-two.md', '# 02 — Two', '## First\nA.\n## Next\nB.');
-  assert.throws(() => generatePages(root, true), /out of date/);
-}));
-
-test('body changes do not change metadata', () => fixture(root => {
-  chapter(root, '01-one.md', '# 01 — One', '## First\nA.');
-  generatePages(root);
-  chapter(root, '01-one.md', '# 01 — One', '## First\nA much longer paragraph.');
+  assert.match(readFileSync(view, 'utf8'), /function Art/);
   assert.equal(generatePages(root, true).length, 1);
 }));
-
-test('rejects malformed filenames', () => fixture(root => {
-  chapter(root, 'opening.md', '# 01 — Opening');
-  assert.throws(() => generatePages(root), /filename/);
+test('H2 headings and Overview become independent views', () => fixture(root => {
+  chapter(root, '01-first.md', '# 01 — First', 'Intro\n\n## Mathematical explanation\nMath.');
+  assert.deepEqual(generatePages(root)[0].views.map(x => x.slug), ['overview', 'mathematical-explanation']);
 }));
-
-test('rejects non-contiguous and duplicate numbers', () => fixture(root => {
-  chapter(root, '01-one.md', '# 01 — One');
-  chapter(root, '03-three.md', '# 03 — Three');
-  assert.throws(() => generatePages(root), /consecutively/);
+test('fenced fake headings are excluded; duplicate slugs are unique', () => {
+  const content = ['# 01 — One', '', '## Real', '~~~md', '## Fake', '~~~', '## Real'].join('\n');
+  assert.deepEqual(extractViews(content).map(x => x.slug), ['real', 'real-2']);
+});
+test('stale metadata, extra view, and orphan folder are detected', () => fixture(root => {
+  chapter(root, '01-one.md', '# 01 — One', '## First\nA');
+  generatePages(root);
+  writeFileSync(join(root, 'meditation/01-one.md'), '# 01 — One\n\n## Second\nB');
+  assert.throws(() => generatePages(root, true), /out of date/);
+  generatePages(root);
+  const first = join(root, 'src/perspectives/01-one/views/first.tsx');
+  assert.throws(() => generatePages(root, true), /Stale view/);
+  rmSync(first);
+  assert.doesNotThrow(() => generatePages(root, true));
+  mkdirSync(join(root, 'src/perspectives/99-orphan'));
+  assert.throws(() => generatePages(root, true), /Orphan perspective/);
+}));
+test('invalid numbering and headings fail', () => fixture(root => {
   chapter(root, '02-two.md', '# 02 — Two');
-  chapter(root, '02-other.md', '# 02 — Other');
   assert.throws(() => generatePages(root), /consecutively/);
-}));
-
-test('rejects disagreement between heading and filename', () => fixture(root => {
-  chapter(root, '01-one.md', '# 02 — One');
+  rmSync(join(root, 'meditation/02-two.md'));
+  chapter(root, '01-one.md', '# 02 — Wrong');
   assert.throws(() => generatePages(root), /differs/);
-}));
-
-test('empty exposition creates empty perspective registry', () => fixture(root => {
-  assert.deepEqual(generatePages(root), []);
-  assert.deepEqual(generatePages(root, true), []);
 }));

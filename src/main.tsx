@@ -1,9 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import './style.css';
-import './perspective-style.css';
+import './libraries/styles/app.css';
+import './libraries/styles/views.css';
+import './libraries/styles/interior.css';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById('root')!).render(
   <React.StrictMode><App /></React.StrictMode>,
 );

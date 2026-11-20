@@ -1,15 +1,22 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-
-test('perspective navigation changes sphere rotation; views affect camera targets', () => {
-  const world = readFileSync(new URL('../src/scene/createExhibitionScene.ts', import.meta.url), 'utf8');
-  assert.match(world, /targetRotation = rotationFor\(perspective, count\)/);
-  assert.match(world, /const offset = offsetForView\(view\)/);
-  assert.match(world, /exhibits\[index\]\.group\.rotation\.z = -orbit\.rotation\.z/);
+const read = path => readFileSync(new URL('../src/' + path, import.meta.url), 'utf8');
+test('perspective navigation rotates the reusable carousel but views live inside', () => {
+  const world = read('libraries/components/Carousel3D/world.ts');
+  const app = read('App.tsx');
+  assert.match(world, /rotation = rotationFor\(index, elements.length\)/);
+  assert.match(world, /anchor\.rotation\.z = -orbit\.rotation\.z/);
+  assert.match(app, /active\.inside/);
+  assert.match(app, /<Perspective/);
+  assert.doesNotMatch(world, /meditation\/|perspectives\/|generated\//);
 });
-test('all core 3D geometries are reusable components', () => {
-  for (const file of ['OrbitSphere.ts', 'ExhibitSculpture.ts', 'SceneLighting.ts']) {
-    assert.ok(readFileSync(new URL('../src/components/3d/' + file, import.meta.url), 'utf8').length > 0);
+test('base mesh, background, entries and destinations are injectable', () => {
+  const types = read('libraries/components/Carousel3D/types.ts');
+  for (const field of ['createBase', 'createBackground', 'createMesh', 'destination', 'title']) {
+    assert.match(types, new RegExp(field));
   }
+  assert.match(read('libraries/components/Carousel3D/Carousel3D.tsx'), /dblclick/);
+  for (const file of ['OrbitSphere.ts', 'ExhibitSculpture.ts', 'SceneLighting.ts'])
+    assert.ok(read('libraries/components/3d/' + file).length > 0);
 });

@@ -1,59 +1,55 @@
-# Skiplet — Meditations Template
+# Skiplet — Meditations template
 
-A React + TypeScript + Vite + Three.js starter for spatial exhibitions. New MDT-* repositories must always be private.
+Private React + TypeScript + Vite + Three.js starter for interactive, art-directed Meditations. A Meditation is an exhibition; its chapters are **perspectives**, and their sections are **views**.
 
-## Canonical exhibition standard
-
-**Scene → Perspectives → Views**, with reusable objects under src/components.
-
-- **Scene**: one main 3D stage and React shell (src/scene and src/App.tsx). Scene files coordinate rendering, orbit rotation, camera targets, cleanup, and fallback, without defining the small reusable objects themselves.
-- **Components**: all reusable 2D elements live in src/components; reusable Three.js objects live in src/components/3d (sphere, exhibit sculpture and lighting). They can be replaced by concept-specific exhibits.
-- **Perspective**: one numbered Markdown chapter in exposition/; each perspective is a station on the rotating sphere, not a separate React route.
-- **View**: each level-two Markdown section (## Heading) defines one camera view inside its perspective. An introductory paragraph becomes an Overview view. With no sections, the entire chapter becomes one Overview view.
-
-The orbit rotates anticlockwise around the Z axis for next-perspective navigation, carrying levitating exhibits. The camera stays at its presentation station while the sphere turns, and the exhibits stay upright. Changing *views* pans and gently zooms the camera without changing the sphere's rotation.
-
-## File organization
+## Canonical directory structure
 
 ```text
-exposition/
-  01-opening.md
-  02-context.md
-  README.md
+meditation/
+  01-opening.md                 # chapter = perspective; ## section = view
 src/
-  components/
-    ChapterMarkdown.tsx
-    PerspectiveNavigation.tsx
-    ViewNavigation.tsx
-    3d/
-      OrbitSphere.ts
-      ExhibitSculpture.ts
-      SceneLighting.ts
-  scene/
-    ExhibitionCanvas.tsx
-    createExhibitionScene.ts
-    orbitMath.ts
-  exposition.ts
-  generated/perspectives.json
-  App.tsx
+  App.tsx                       # thin composition and navigation
+  main.tsx                      # Vite bootstrap
+  generated/
+    perspectives.json           # generated, never hand-edit
+  libraries/
+    components/
+      Carousel3D/               # reusable, pluggable 3D carousel
+      3d/                       # reusable meshes and lighting
+      ChapterMarkdown.tsx
+      PerspectiveNavigation.tsx
+      ViewNavigation.tsx
+    utils/
+    styles/
+  perspectives/
+    content.ts                  # loads authored Meditation chapters
+    carouselAssets.ts           # supplies the current visual theme
+    index.ts                    # perspective registry
+    PerspectiveStage.tsx        # shared interior shell
+    01-opening/
+      Perspective.tsx
+      views/
+        overview.tsx
+        your-exposition.tsx
+        mathematical-explanation.tsx
 ```
 
-Markdown chapters use the first line as the title, e.g. `# 01 — Opening`. Every `## Section title` becomes a separate view. The optional exposition README is an index only. Numbers must be unique and consecutive. Do not maintain a manual carousel page list.
+**Outer carousel:** one entry per perspective. Its base mesh (sphere by default), background, lighting, any number of element meshes, titles, subtitles and destinations are injected rather than hard-coded. Double-click a mesh or activate the accessible Enter button to enter its interior. Views are **not shown on the outer carousel**.
 
-## Generation and verification
+**Perspective interior:** `Perspective.tsx` mounts the appropriate view from its `views/` folder. Each view defaults to rendering its Markdown section but can be replaced with immersive 3D, mathematics, interaction or other React UI. Escape/Back returns to the outer carousel. Direct links use `?perspective=01-opening&view=your-exposition`.
+
+## Generate and enforce
 
 ```bash
 npm ci
-npm run generate:perspectives
-npm run check:constraints  # source/layout/manifest invariants, no dependencies required
-npm run check              # constraints + tests + TypeScript + production build
+npm run generate:perspectives      # manifest + missing Perspective.tsx/views/*.tsx
+npm run check:constraints         # strict structure check, no dependency install required
+npm run check                     # constraints + tests + typecheck + build
 npm run dev
 ```
 
-To enforce all source constraints via the CLI use `skiplet check constraints` (CI-friendly, nonzero exit on violations); use `skiplet check all` to run constraints, tests, typecheck and build.\n\nThe canonical CLI command is `skiplet generate perspectives`. The older `skiplet generate pages` remains a compatible alias and writes the **same** `src/generated/perspectives.json` registry. Run generation after adding/removing/renaming chapters or changing their section structure. Editing paragraph text alone does not require regeneration. `npm run check:pages` verifies the manifest is current.
+The CLI supports `node scripts/skiplet.mjs generate perspectives`, `generate pages` (compatibility alias), `check constraints`, and `check all`. The generator preserves authored components; after removing or renaming a chapter/view, remove obsolete entry files yourself. The check command intentionally rejects stale generated metadata, missing views, orphan perspective folders, legacy layout, more than 200 authored lines per source file, off-palette colors and perspective-specific imports in the reusable carousel.
 
-Navigation: left/right arrow keys and perspective tabs change perspectives; up/down arrows and view tabs navigate inside a perspective. Deep links use `?perspective=01-opening&view=your-exposition`, and old `?chapter=01-opening` URLs remain readable. Browser history navigation is supported.
+The reusable component is under `src/libraries/components/Carousel3D/`; project-specific assets are supplied from `src/perspectives/carouselAssets.ts`. New agents must follow `AGENTS.md` and run `npm run check:constraints` before finalizing.
 
-The starter scene uses procedural geometry so model assets are optional. The rendering lifecycle supports reduced motion, WebGL unavailability, resizing and resource cleanup. All colors are derived from meditations.config.json. Each authored source file is limited to 200 lines. Run `npm run check` for tests, typechecking, palette and config validation and production build; CI also runs the browser fallback smoke test. No required backend, authentication, or database.
-
-See AGENTS.md for constraints and reusable-asset promotion rules.
+This template uses no compulsory authentication, backend or database, and promotion to Floks, Kloks or Skipo is never automatic. Keep generated GitHub repositories **private** and verify any release independently.
