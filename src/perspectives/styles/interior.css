@@ -7,9 +7,4 @@
   font-size: 28px; padding: 12px; display: grid; place-items: center;
 }
 .scaffold-back-icon:focus-visible { outline: 2px solid var(--color-highlight); }
-.icon-circle-btn {
-  border: 0; padding: 10px; color: var(--color-text); background: transparent;
-  display: grid; place-items: center; cursor: pointer;
-}
-.icon-circle-btn:focus-visible { outline: 2px solid var(--color-highlight); outline-offset: 3px; }
 .annotated-perspective .annotation-copy { scrollbar-width: none; }

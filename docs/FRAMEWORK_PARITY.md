@@ -20,3 +20,7 @@ Verification when both checkouts are available:
 5. Record both exact commit SHAs; do not claim parity for untested downstream use.
 
 Do not expose copyrighted/private art, authored monolith text, thesis chapters or credentials in the public template. Framework promotions into other libraries require separate approval.
+
+## Hydrogen review integration
+
+The fixes documented by the private Meditation's docs/CODE_REVIEW_HYDROGEN.md are reflected upstream. Vite deduplicates react/react-dom and prebundles react, react-dom/client, both JSX runtimes and three to avoid the invalid-hook-call/stale-hash incident. Default HMR is disabled; when a developer knows their WebSocket transport is stable, opt in with SKIPLET_ENABLE_HMR=1 npm run dev. Do not globally allow untrusted hosts. The generic annotated root receives non-passive wheel listeners while its parent carousel locks navigation during an open landmark. Scrollable text retains wheel events, landmark switching keeps the camera rig mounted and moves directly between poses, and software rendering is throttled. Timer calculations use performance.now, not deprecated THREE.Clock. The shared bare icon/audio control styles live in src/libraries/styles/controls.css.

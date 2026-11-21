@@ -105,14 +105,17 @@ export function Carousel3D(props: Carousel3DProps) {
     };
     const observer = new ResizeObserver(resize);
     observer.observe(mount);
-    const clock = new THREE.Clock();
+    const startedAt = performance.now();
+    let previousFrameAt = startedAt;
     const _worldPos = new THREE.Vector3();
     let raf = 0, timer = 0, disposed = false;
 
     const tick = () => {
       if (disposed) return;
-      const dt = Math.min(clock.getDelta(), 0.08);
-      const elapsed = clock.getElapsedTime();
+      const now = performance.now();
+      const dt = Math.min(Math.max(0, (now - previousFrameAt) / 1000), 0.08);
+      previousFrameAt = now;
+      const elapsed = (now - startedAt) / 1000;
       const state = stateRef.current;
       if (state.activeIndex !== lastActiveIndex) {
         lastActiveIndex = state.activeIndex;

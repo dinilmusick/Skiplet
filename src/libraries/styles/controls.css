@@ -1,0 +1,41 @@
+/** Reusable bare icon buttons. No plate, ring, or text label in the visual UI. */
+.icon-circle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text);
+  box-shadow: none;
+  opacity: 0.86;
+  cursor: pointer;
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms ease, opacity 180ms ease;
+}
+.icon-circle-btn svg {
+  display: block;
+  filter: drop-shadow(0 2px 10px var(--color-base))
+    drop-shadow(0 0 14px color-mix(in srgb, var(--accent) 44%, transparent));
+}
+.icon-circle-btn:hover:not(:disabled) {
+  color: var(--accent-bright);
+  opacity: 1;
+  transform: translateY(-1px) scale(1.08);
+}
+.icon-circle-btn:active:not(:disabled) { transform: scale(0.94); }
+.icon-circle-btn:focus-visible {
+  outline: 2px solid var(--accent-bright);
+  outline-offset: 3px;
+}
+.audio-toggle-btn {
+  position: absolute;
+  z-index: 20;
+  top: clamp(20px, 4vh, 36px);
+  right: clamp(20px, 4vw, 48px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .icon-circle-btn { transition: none; }
+}
