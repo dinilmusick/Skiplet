@@ -62,6 +62,9 @@ export function checkConstraints(root = process.cwd()) {
     if (path.startsWith('src/libraries/components/Carousel3D/') &&
         /(?:from\s*['"][^'"]*perspectives\/|meditation\/|generated\/perspectives|\bSTATIONS\b)/.test(content))
       issues.push(path + ': Carousel3D must not import Meditation-specific content');
+    if (path.startsWith('src/libraries/') && /from\s+['\"][^'\"]*\/perspectives\//.test(content)) {
+      issues.push(path + ': reusable library must not import application perspectives');
+    }
   });
   try { generatePages(root, true); } catch (error) { issues.push(String(error.message ?? error)); }
   if (issues.length) throw new Error('Skiplet constraints failed:\n- ' + issues.join('\n- '));

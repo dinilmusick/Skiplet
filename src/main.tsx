@@ -1,9 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import './libraries/styles/app.css';
-import './libraries/styles/views.css';
-import './libraries/styles/interior.css';
+import './perspectives/styles/app.css';
+import './perspectives/styles/views.css';
+import './perspectives/styles/interior.css';
 import './libraries/styles/annotated-scenes.css';
 
 createRoot(document.getElementById('root')!).render(
