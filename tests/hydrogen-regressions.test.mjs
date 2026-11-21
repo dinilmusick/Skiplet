@@ -32,6 +32,12 @@ test('shared components retain root event routing, parent lock and safe timing',
 
 test('landmark wheel events remain in the scene and never leak to view navigation', () => {
   const previousElement = globalThis.Element;
+  const previousWindow = globalThis.window;
+  const windowListeners = new Map();
+  globalThis.window = {
+    addEventListener: (name, callback) => windowListeners.set(name, callback),
+    removeEventListener: name => windowListeners.delete(name),
+  };
   class FakeElement {
     constructor(copy = null) { this.copy = copy; }
     closest() { return this.copy; }
@@ -78,7 +84,10 @@ test('landmark wheel events remain in the scene and never leak to view navigatio
     assert.equal(stopped, true, 'text wheel never reaches parent carousel');
     assert.deepEqual(opened, ['b']);
     scroll();
-  } finally { globalThis.Element = previousElement; }
+  } finally {
+    globalThis.Element = previousElement;
+    globalThis.window = previousWindow;
+  }
 });
 
 test('bare icon controls are styled in reusable CSS, not application-only styles', () => {
