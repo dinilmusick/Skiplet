@@ -2,17 +2,39 @@
   "id": "MDT-Example",
   "title": "A New Meditation",
   "concept": "A space for an idea to become an experience.",
-  "truthTags": ["emergence", "feedback"],
-  "emotionTags": ["wonder", "serenity"],
-  "artTags": ["minimal", "kinetic", "spatial"],
+  "truthTags": [
+    "emergence",
+    "feedback"
+  ],
+  "emotionTags": [
+    "wonder",
+    "serenity"
+  ],
+  "artTags": [
+    "minimal",
+    "kinetic",
+    "spatial"
+  ],
   "artStyle": "immersive spatial minimalism",
   "colorScheme": "complementary",
   "palette": {
     "base": "#101820",
     "highlight": "#F2AA4C",
     "surface": "#1A2831",
-    "text": "#F1ECE2"
+    "text": "#F1ECE2",
+    "amberBright": "#FFCB83",
+    "amberDeep": "#94552A",
+    "purple": "#9270F4",
+    "purpleBright": "#C4B5FF",
+    "purpleDeep": "#29213F"
   },
-  "materials": ["glass", "anodized metal", "light"],
-  "textures": ["translucent", "subtle noise"]
+  "materials": [
+    "glass",
+    "anodized metal",
+    "light"
+  ],
+  "textures": [
+    "translucent",
+    "subtle noise"
+  ]
 }

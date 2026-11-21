@@ -1,23 +1,29 @@
-# Skiplet — binding agent contract
+# Skiplet — canonical public Meditation scaffold
 
-This repository is the **canonical private template** for all `MDT-*` Meditation exhibitions. A Meditation is the interactive React app itself, not merely a written thesis. All newly generated GitHub repositories must remain private. Do not move this UI into Floks or other libraries without explicit approval.
+Skiplet is the PUBLIC template for all MDT-* interactive Meditations. Every new Meditation repository created from it must remain PRIVATE. Do not publish project-specific chapters, images, assets or secrets in the template.
 
-## Source and structure (mandatory)
+## Mandatory source structure
 
-- `meditation/NN-slug.md` is the authored **Meditation**. One numbered Markdown chapter equals one **perspective** on the outer 3D carousel.
-- Each level-two Markdown heading within a chapter becomes one **view inside that perspective**. An introductory passage creates the `overview` view. Views must **not** be menu entries on the outer carousel.
-- `src/App.tsx` is the composition/navigation root. `src/main.tsx` is the unavoidable Vite bootstrap. No other source files or CSS belong at `src/` root.
-- `src/libraries/components/` owns reusable React/Three.js components, including `Carousel3D` and `3d` primitives. `src/libraries/utils/` owns reusable functions and data structures; shared CSS is under `src/libraries/styles/`.
-- `src/perspectives/<chapter-slug>/Perspective.tsx` is the perspective's interior UI entry. `src/perspectives/<chapter-slug>/views/<view-slug>.tsx` contains its view components. A view can reexport `MarkdownView` or define its own interactive experience.
-- `src/perspectives/content.ts` loads authored chapters; `src/perspectives/carouselAssets.ts` injects Meditation-specific meshes/background into the generic menu; `src/perspectives/index.ts` resolves perspective entries. Never import a chapter or Meditation-specific artwork from reusable `Carousel3D`.
-- Do not recreate legacy `exposition/`, `src/scene/`, `src/components/`, or `src/exposition.ts`.
+- meditation/NN-slug.md contains authored perspectives. Each numbered chapter is exactly one outer carousel perspective; each H2 heading creates one interior view. Prose before the first H2 is Overview.
+- src/App.tsx is the navigation/composition root; src/main.tsx is the bootstrap. No other source files belong in src/ root.
+- src/libraries/components holds reusable React and Three.js components; src/libraries/utils contains data structures, math, audio and pure utilities; src/libraries/styles contains shared CSS.
+- src/perspectives/<slug>/Perspective.tsx and views/<view-slug>.tsx own topic-specific experiences. Generated metadata lives only in src/generated/perspectives.json.
+- Never recreate exposition/, src/scene/, src/components/, or src/exposition.ts.
 
-## Operational contract
+## Reusable interactive abstractions
 
-1. Inspect `meditations.config.json` and the current authored chapters before editing. Preserve palette, truth/emotion/art tags, materials and textures.
-2. After changing the number or names of chapters/views, run `npm run generate:perspectives`. This generates `src/generated/perspectives.json` and missing React `Perspective.tsx`/`views/*.tsx` files **without overwriting authored components**. On rename/removal, reconcile old files yourself.
-3. Run `npm run check:constraints` (equivalent to `node scripts/skiplet.mjs check constraints`) on every change. It rejects legacy architecture, wrong source placement, missing/stale perspective/view files, orphan folders, topic-specific carousel coupling, non-palette colors, and source files over 200 lines.
-4. Before merging, run `npm ci`, `npm run check`, and the browser smoke test (including WebGL-disabled fallback and direct perspective links); record exact commit and outcomes. Do not claim unrun checks passed.
-5. Reuse the carousel by passing `elements` (arbitrary number, mesh factory, title, subtitle and destination) and `visuals` (base mesh, background and lighting). Double-click enters a perspective; views exist only after entering. Preserve keyboard access, reduced motion, resource disposal and 2D fallback.
+The outer Carousel3D accepts arbitrary elements with titles, subtitles, mesh factories and activation destinations, and injected base mesh, background, placement, camera and lighting. Double-click enters the selected perspective. Its 2D/Canvas3D fallback must remain usable.
 
-No required backend, authentication or database. Use stable React/TypeScript/Vite, small modular files and reproducible lockfiles. Keep all UI colors within the declared palette. Promotion to Skipo, Floks or Kloks is separate and verified.
+Within a perspective, DirectionalCarousel3D moves between views along any angle, with 90 degrees vertical by default. Each entry is an Annotated3DScene with its own 3D scene, particles, lighting, audio, and an arbitrary number of gem landmarks. Text is hidden until a gem is selected, then appears directly over the visual without a panel. Generate one landmark for every Markdown bulleted line (with indented equations or pictures belonging to that line). The user must be able to orbit the scene separately from swiping the carousel; closing a landmark returns to the default scene view. Keep the icon-only controls accessible, reduced-motion-safe, and disposal-safe.
+
+No perspective count, chapter title, artwork or private model may be hardcoded inside reusable library components. Keep the UI palette entirely defined by meditations.config.json, and authored source files to 200 lines or fewer.
+
+## Verification workflow
+
+1. Read meditations.config.json and existing chapter/view definitions before editing.
+2. Run npm run generate:perspectives after editing chapters or H2 headings. It creates missing React entrypoints without overwriting authored components; remove obsolete files intentionally.
+3. Run npm run check:constraints and npm run check to validate the CLI contract, tests, TypeScript, palette, line count and production build.
+4. Run browser verification including WebGL-disabled fallback, keyboard navigation, gems and 3D orbit controls. Document any unrun checks honestly.
+5. When extracting a reusable component in a Meditation, synchronize the generic libraries, tests, stack versions and lockfiles back to this template. Never copy private thesis/artwork/credentials into public Skiplet.
+
+Use stable React, TypeScript, Vite, minimal dependencies, and no mandatory backend, authentication or database. Promotion into Floks, Kloks or Skipo is separate, explicit and verified.

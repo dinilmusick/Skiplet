@@ -1,55 +1,32 @@
-# Skiplet — Meditations template
+# Skiplet — Interactive Meditations starter
 
-Private React + TypeScript + Vite + Three.js starter for interactive, art-directed Meditations. A Meditation is an exhibition; its chapters are **perspectives**, and their sections are **views**.
+A public static React + TypeScript + Three.js + Vite scaffold for artistic interactive exhibits. New MDT-* repositories produced from Skiplet must be PRIVATE. No backend, database, or authentication is required.
 
-## Canonical directory structure
+## Framework structure
 
-```text
-meditation/
-  01-opening.md                 # chapter = perspective; ## section = view
-src/
-  App.tsx                       # thin composition and navigation
-  main.tsx                      # Vite bootstrap
-  generated/
-    perspectives.json           # generated, never hand-edit
-  libraries/
-    components/
-      Carousel3D/               # reusable, pluggable 3D carousel
-      3d/                       # reusable meshes and lighting
-      ChapterMarkdown.tsx
-      PerspectiveNavigation.tsx
-      ViewNavigation.tsx
-    utils/
-    styles/
-  perspectives/
-    content.ts                  # loads authored Meditation chapters
-    carouselAssets.ts           # supplies the current visual theme
-    index.ts                    # perspective registry
-    PerspectiveStage.tsx        # shared interior shell
-    01-opening/
-      Perspective.tsx
-      views/
-        overview.tsx
-        your-exposition.tsx
-        mathematical-explanation.tsx
-```
+The authored book lives in meditation/NN-slug.md. Each chapter is one Perspective; each H2 section is a View, with its component at src/perspectives/<slug>/views/<view-slug>.tsx. The root src/ contains only App.tsx and main.tsx, plus directories for generated/, libraries/, and perspectives/.
 
-**Outer carousel:** one entry per perspective. Its base mesh (sphere by default), background, lighting, any number of element meshes, titles, subtitles and destinations are injected rather than hard-coded. Double-click a mesh or activate the accessible Enter button to enter its interior. Views are **not shown on the outer carousel**.
+Shared libraries:
+- src/libraries/components/Carousel3D/: 3D perspective menu, injected central base mesh, scene background, arbitrary item meshes, title/destination, lighting/camera and Canvas3D/2D fallback
+- src/libraries/components/DirectionalCarousel3D/: arbitrary-angle swipe/wheel view carousel
+- src/libraries/components/Annotated3DScene/: world-space gem landmarks, hidden text, focused camera choreography, lighting/particle/audio events and orbit controls
+- src/libraries/components/3d/: portable renderer, shading, particles, geometric assets and lighting
+- src/libraries/utils/audio/: reusable audio engine, spatial sound, short cues and ambient clips
+- src/libraries/utils/landmarkMarkdown.ts: one landmark for each Markdown bullet, including its indented equations and images
+- src/libraries/styles/: shared visual treatments
 
-**Perspective interior:** `Perspective.tsx` mounts the appropriate view from its `views/` folder. Each view defaults to rendering its Markdown section but can be replaced with immersive 3D, mathematics, interaction or other React UI. Escape/Back returns to the outer carousel. Direct links use `?perspective=01-opening&view=your-exposition`.
+Topic-specific mesh factories, presets, text and art stay in src/perspectives/ and meditation/. The starter has a neutral sphere with placeholder sculptures, a star background, and three interior views.
 
-## Generate and enforce
+## Use
 
-```bash
 npm ci
-npm run generate:perspectives      # manifest + missing Perspective.tsx/views/*.tsx
-npm run check:constraints         # strict structure check, no dependency install required
-npm run check                     # constraints + tests + typecheck + build
+npm run generate:perspectives
+npm run check:constraints
+npm run check
 npm run dev
-```
 
-The CLI supports `node scripts/skiplet.mjs generate perspectives`, `generate pages` (compatibility alias), `check constraints`, and `check all`. The generator preserves authored components; after removing or renaming a chapter/view, remove obsolete entry files yourself. The check command intentionally rejects stale generated metadata, missing views, orphan perspective folders, legacy layout, more than 200 authored lines per source file, off-palette colors and perspective-specific imports in the reusable carousel.
+The Skiplet CLI creates missing Perspective and view entrypoints without overwriting authored React components. It rejects stale generated metadata, missing or orphan view files, legacy folders, non-palette colors, source files over 200 lines, and project-specific dependencies in the outer carousel.
 
-The reusable component is under `src/libraries/components/Carousel3D/`; project-specific assets are supplied from `src/perspectives/carouselAssets.ts`. New agents must follow `AGENTS.md` and run `npm run check:constraints` before finalizing.
+To open a specific view directly, use ?perspective=01-opening&view=your-exposition. Scroll or swipe to change views, orbit their 3D scenes, and select a gem to reveal annotation text. Back and keyboard controls remain accessible. Disable WebGL to exercise the software fallback.
 
-This template uses no compulsory authentication, backend or database, and promotion to Floks, Kloks or Skipo is never automatic. Keep generated GitHub repositories **private** and verify any release independently.
+See AGENTS.md for mandatory rules and docs/FRAMEWORK_PARITY.md for synchronization with the private Meditations implementation.

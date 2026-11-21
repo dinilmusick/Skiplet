@@ -1,13 +1,20 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import config from '../meditations.config.json';
-import { Carousel3D } from './libraries/components/Carousel3D';
+import { Carousel3D, Canvas2DFallback } from './libraries/components/Carousel3D';
 import { PerspectiveNavigation } from './libraries/components/PerspectiveNavigation';
-import { carouselElements, carouselVisuals } from './perspectives/carouselAssets';
+import {
+  carouselElements, scaffoldBaseMesh, scaffoldBackground, scaffoldPlaceElement,
+  scaffoldLighting, scaffoldConfigureCamera,
+} from './perspectives/carouselAssets';
 import { perspectives, perspectiveComponents } from './perspectives';
 
 const theme = {
-  '--color-base': config.palette.base, '--color-highlight': config.palette.highlight,
-  '--color-surface': config.palette.surface, '--color-text': config.palette.text,
+  '--color-base': config.palette.base,
+  '--color-highlight': config.palette.highlight,
+  '--color-surface': config.palette.surface,
+  '--color-text': config.palette.text,
+  '--accent': config.palette.highlight,
+  '--accent-bright': config.palette.amberBright,
 } as CSSProperties;
 const clamp = (n: number, count: number) => Math.max(0, Math.min(count - 1, n));
 function fromUrl() {
@@ -22,11 +29,13 @@ function fromUrl() {
 export function App() {
   const [active, setActive] = useState(fromUrl);
   const [fallback, setFallback] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(() =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const title = config.title.trim() || config.id.replace(/^MDT-/, '').replaceAll('-', ' ');
   const item = carouselElements[active.perspective];
   const perspective = perspectives[active.perspective];
   const Perspective = perspectiveComponents[active.perspective];
-  function navigate(index: number, view = 0, inside = active.inside, push = true) {
+  function navigate(index: number, view = 0, inside = active.inside) {
     const nextIndex = clamp(index, perspectives.length);
     const selected = perspectives[nextIndex];
     if (!selected) return;
@@ -40,19 +49,26 @@ export function App() {
     } else {
       url.searchParams.delete('perspective'); url.searchParams.delete('view');
     }
-    if (push) window.history.pushState(null, '', url);
+    window.history.pushState(null, '', url);
   }
   const enter = (index: number) => navigate(index, 0, true);
   const exit = () => navigate(active.perspective, 0, false);
-  function activate(item: (typeof carouselElements)[number]) {
-    const destination = new URL(item.destination, window.location.href);
+  function activate(entry: (typeof carouselElements)[number]) {
+    const destination = new URL(entry.destination, window.location.href);
     const slug = destination.searchParams.get('perspective');
     const index = perspectives.findIndex(p => p.slug === slug);
     if (index < 0) { window.location.assign(destination.href); return; }
-    const view = perspectives[index].views.findIndex(v => v.slug === destination.searchParams.get('view'));
+    const view = perspectives[index].views.findIndex(
+      v => v.slug === destination.searchParams.get('view'));
     navigate(index, Math.max(0, view), true);
   }
   useEffect(() => { document.title = title + ' · Meditations'; }, [title]);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const change = () => setReducedMotion(mq.matches);
+    mq.addEventListener('change', change);
+    return () => mq.removeEventListener('change', change);
+  }, []);
   useEffect(() => {
     const onPop = () => setActive(fromUrl());
     const onKey = (event: KeyboardEvent) => {
@@ -73,7 +89,8 @@ export function App() {
   }, [active]);
   return <main className="exhibition" style={theme}>
     <header className="exhibition-header">
-      <span className="exhibition-brand">MEDITATIONS</span><span className="exhibition-index">{title} / {config.id}</span>
+      <span className="exhibition-brand">MEDITATIONS</span>
+      <span className="exhibition-index">{title} / {config.id}</span>
     </header>
     {active.inside && perspective && Perspective ? <Perspective
       perspective={perspective} activeView={active.view}
@@ -84,9 +101,17 @@ export function App() {
         navigate(index, 0, true); return true;
       }} onBack={exit} /> : <>
       <div className="exhibition-visual" aria-hidden="true">
-        {fallback ? <div className="sculpture-fallback" /> : <Carousel3D
-          elements={carouselElements} visuals={carouselVisuals} activeIndex={active.perspective}
-          onActivate={activate} onUnavailable={() => setFallback(true)} />}
+        {fallback ? <Canvas2DFallback elements={carouselElements}
+          palette={config.palette} activeIndex={active.perspective}
+          onSelect={index => navigate(index, 0, false)}
+          onActivate={index => { const entry = carouselElements[index]; if (entry) activate(entry); }} />
+          : <Carousel3D elements={carouselElements} activeIndex={active.perspective}
+            baseMesh={scaffoldBaseMesh} background={scaffoldBackground}
+            placeElement={scaffoldPlaceElement} createLighting={scaffoldLighting}
+            configureCamera={scaffoldConfigureCamera}
+            reducedMotion={reducedMotion}
+            onStep={dir => navigate(active.perspective + dir, 0, false)}
+            onActivate={activate} onError={() => setFallback(true)} />}
       </div>
       <div className="exhibition-vignette" aria-hidden="true" />
       <section className="exhibition-story" aria-label="Meditation perspectives">
@@ -99,7 +124,9 @@ export function App() {
       <PerspectiveNavigation perspectives={perspectives} active={active.perspective}
         onSelect={index => navigate(index, 0, false)} />
     </>}
-    <footer className="exhibition-footer"><span>MEDITATION → PERSPECTIVES → VIEWS</span>
-      <span>{fallback ? '2D fallback' : '3D CAROUSEL'}</span></footer>
+    <footer className="exhibition-footer">
+      <span>MEDITATION → PERSPECTIVES → VIEWS</span>
+      <span>{fallback ? '2D fallback active' : '3D carousel · 2D fallback available'}</span>
+    </footer>
   </main>;
 }
