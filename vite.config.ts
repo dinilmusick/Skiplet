@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   base: './',
   // Prevent multiple React dispatchers after dependency reoptimization.
@@ -18,6 +18,6 @@ export default defineConfig({
     port: 3000,
     // In restricted/embedded browsers the HMR socket can become stale.
     // Opt in only when the environment supports stable hot reloads.
-    hmr: process.env.SKIPLET_ENABLE_HMR === '1',
+    hmr: mode === 'dev-hmr',
   },
-});
+}));

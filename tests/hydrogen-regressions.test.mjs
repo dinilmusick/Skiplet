@@ -11,7 +11,7 @@ test('Vite prebundles one React graph and supports an explicit HMR opt-in', () =
   for (const id of ['react-dom/client', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'three']) {
     assert.ok(config.includes("'" + id + "'"), 'prebundle ' + id);
   }
-  assert.match(config, /SKIPLET_ENABLE_HMR/);
+  assert.match(config, /hmr:\s*mode\s*===\s*'dev-hmr'/);
   assert.doesNotMatch(config, /allowedHosts:\s*true/);
 });
 
